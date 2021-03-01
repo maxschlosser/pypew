@@ -28,3 +28,8 @@ from every lesson. The goal is a small space shooter, with some sounds and simpl
 ## 01 Game Setup
 
 The most basic game you can create in Pyxel displays nothing but a black screen.
+To do this, we need to do 3 things:
+
+1. import pyxel
+2. initialize pyxel
+3. run pyxel

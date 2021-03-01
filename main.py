@@ -13,6 +13,9 @@ class Ship:
         self.coords = [math.floor(x / 2 - self.WIDTH / 2), math.floor(y - 2 * self.HEIGHT)]
 
     def update(self):
+        """
+        Update the ship location. Most of the player input happens here.
+        """
         if pyxel.btn(pyxel.KEY_D) or pyxel.btn(pyxel.KEY_RIGHT):
             if self.coords[0] < pyxel.width - 15:
                 self.coords[0] += 1
@@ -38,7 +41,7 @@ class Swarm:
         if coords is None:
             coords = [10, 10]
         if lines is None:
-            lines = [[1, 1, 0, 1, 1, 1, 0, 1, 1], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]]
+            lines = [[1, 1, 0, 1, 1], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]]
         self.pattern = lines
         self.enemy_sprite = 0
         self.coords = coords
@@ -49,15 +52,18 @@ class Swarm:
         LEFT = 1
 
     def kill(self, bullet_x, bullet_y):
+        """
+        Play sound and destroy enemy.
+        :param bullet_x:
+        :param bullet_y:
+        :return:
+        """
         x = math.floor((bullet_x - self.coords[0]) / 10)
         y = math.floor((bullet_y - self.coords[1]) / 10)
         pyxel.play(0, 0)
         self.pattern[y][x] = 0
 
     def update(self):
-        self.enemy_sprite += 1
-        if self.enemy_sprite >= 20:
-            self.enemy_sprite = 0
         if self.direction == 0:
             self.coords[0] += 1
             if self.coords[0] >= pyxel.width - ((max([len(line) for line in self.pattern])+1) * 10):
@@ -70,13 +76,14 @@ class Swarm:
                 self.direction = Swarm.Direction.RIGHT
 
     def draw(self):
-        enemies = [(0, 0), (8, 0), (0, 8), (8, 8)]
+        sprite_locations = [(0, 0), (8, 0), (0, 8), (8, 8)]
+        sprite_index = math.floor(pyxel.frame_count / 5) % 4
         _, y = self.coords
         for line in self.pattern:
             x, _ = self.coords
             for enemy in line:
                 if enemy == 1:
-                    pyxel.blt(x, y, 0, *enemies[math.floor(self.enemy_sprite / 5)], Swarm.WIDTH, Swarm.HEIGHT)
+                    pyxel.blt(x, y, 0, *sprite_locations[sprite_index], Swarm.WIDTH, Swarm.HEIGHT)
                 x += 10
             y += 10
 
@@ -90,6 +97,11 @@ class Bullet:
         self.velocity = 1
 
     def update(self):
+        """
+        Check for collision with anything. This will not destroy
+        the bullet to ensure it's information is available until
+        next update.
+        """
         self.coords[1] -= self.velocity
         if pyxel.pget(*self.coords) != pyxel.COLOR_BLACK:
             App.swarm.kill(*self.coords)
@@ -104,9 +116,16 @@ class Bullet:
 
 
 class App:
+    """
+    The main game class. Provides some setup and runs pyxel.
+    """
+
     swarm = Swarm()
 
     def __init__(self):
+        """
+        Initialize pyxel and the game objects. Finally, run pyxel.
+        """
         pyxel.init(160, 120, caption="pypew", fps=25)
         pyxel.load("assets/pypew.pyxres")
         self.ship = Ship(pyxel.width, pyxel.height)
@@ -115,6 +134,11 @@ class App:
         pyxel.run(self.update, self.draw)
 
     def update(self):
+        """
+        Update objects. Runs every frame before the draw method.
+        Also checks for button presses that affect multiple objects
+        or the game.
+        """
         if self.bullet_delay > 0:
             self.bullet_delay -= 1
         self.ship.update()
@@ -133,6 +157,10 @@ class App:
             pyxel.quit()
 
     def draw(self):
+        """
+        Draw objects. The last object drawn will be on top.
+        :return:
+        """
         pyxel.cls(0)
         self.ship.draw()
         self.swarm.draw()

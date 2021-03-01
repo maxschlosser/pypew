@@ -44,6 +44,7 @@ This will create a 160x120 window with the caption pypew.
 
 ```python
         pyxel.init(160,120, caption="pypew", fps=25)
+        pyxel.run(self.update, self.draw)
 ```
 
 The Pyxel run method provides the game loop, executing the update and the draw function every tick.
@@ -52,16 +53,20 @@ This means we need to define them as well before we're able to put something on 
 Finally, we can start the game by creating an instance of the App class.
 
 ```python
-        pyxel.run(self.update, self.draw)
-    
     def update(self):
-        pass
+        if pyxel.btnp(pyxel.KEY_Q):
+            pyxel.quit()
+
 
     def draw(self):
         pyxel.cls(pyxel.COLOR_CYAN)
 
 App()
 ```
+
+`pyxel.btnp(pyxel.KEY_Q)` will return `True` if the `Q`-key is pressed, ending the game.
+`pyxel.cls(COLOR)` fills the whole screen with the specified color, you can use
+either integers (0-15) or the named constants.
 
 The full example is [here](./01/01_pyxel_setup.py).
 
@@ -86,8 +91,8 @@ the music editor.
 
 The sprite editor consists of the drawing area, the "map", the drawing tools and the selector
 for the image bank.
-To create a sprite, simply pick a color and draw. The active drawing area is 16x16, but you can create
-bigger sprites, although they become harder to edit.
+To create a sprite, simply pick a color and draw. The active drawing area is 16x16. You can create
+bigger sprites, but they become harder to edit.
 
 > Tip: If you're using smaller (at most 8x8) sprites, you can edit multiple animation frames
 > side by side.
